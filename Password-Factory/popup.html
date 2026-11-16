@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Password Factory</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="popup.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="/preferences.js" defer></script>
+	<script src="/passwordFactory.js" defer></script>
+	<script src="/popup.js" defer></script>
+</head>
+
+<body>
+	<main id="popupMain" class="popup">
+
+		<header class="popup-header">
+			<img src="/icon.svg" width="32" height="32">
+			<div>
+				<h1 class="popup-title">Password Factory</h1>
+				<p class="popup-subtitle">Generate secure passwords instantly</p>
+			</div>
+		</header>
+
+		<section class="main-controls">
+			<input id="passwordOutput" class="password-field" type="password" readonly />
+
+			<div class="button-group" role="group">
+				<button id="revealBtn" class="icon-btn" type="button" title="Reveal password">&#x1F441;</button>
+				<button id="regenerateBtn" class="icon-btn" type="button" title="Regenerate password">&#x2B6E;</button>
+				<button id="copyBtn" class="icon-btn" type="button" title="Copy to clipboard">&#x29c9;</button>
+			</div>
+		</section>
+
+
+		<section class="options-toggle">
+			<div id="toggleOptionsBtn" class="toggle-options-btn" title="Toggle options"></div>
+		</section>
+
+
+		<section id="optionsPanel" class="options-panel" hidden>
+			<label class="option-set" for="passwordLength">
+				<span>Length:</span>
+				<input id="passwordLength" class="length-input" type="number" required />
+			</label>
+
+			<label class="option-set" for="includeReservedChars">
+				<input id="includeReservedChars" class="include-reserved-chars-input" type="checkbox" />
+				<span>Include reserved chars</span>
+			</label>
+		</section>
+
+	</main>
+</body>
+</html>

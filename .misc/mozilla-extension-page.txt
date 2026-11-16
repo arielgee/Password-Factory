@@ -1,0 +1,54 @@
++ Name
+--------------------------------------------------------------
+Password Factory
+
+
++ Summary
+--------------------------------------------------------------
+Generate strong, random passwords instantly from the toolbar. Passwords are created locally with your browser's cryptographic random number generator.
+
+
++ Product Page Description (About this extension)
+--------------------------------------------------------------
+Password Factory is a simple, lightweight password generator that lives in your browser toolbar. Click its icon to generate a strong, random password and copy it to your clipboard.
+
+Unlike Firefox's built-in password generator, which is only available when interacting with a password field on a web page and cannot be accessed even from the Passwords management page (`about:logins`), Password Factory lets you generate strong passwords whenever you need them, without requiring an active password field.
+
+All passwords are generated locally in your browser. Nothing is stored or transmitted, and there is no tracking or data collection.
+
+
+◼ **FEATURES**
+&emsp;● Generates strong random passwords from the toolbar popup.
+&emsp;● Uses the browser's cryptographic random number generator (crypto).
+&emsp;● Every password contains uppercase letters, lowercase letters, digits and symbols.
+&emsp;● Adjustable password length from 16 to 128 characters (default 16).
+&emsp;● Optional reserved characters: ' ` [ ] { } / ; ? | " < >
+&emsp;● Passwords are generated locally and are never stored, logged or transmitted.
+&emsp;● No tracking and no data collection.
+&emsp;● Built on Manifest V3.
+
+◼ **PERMISSION JUSTIFICATION**
+&emsp;● "storage" – Saving your preferences (password length, reserved characters option
+&emsp;&emsp;and options panel state) locally in the browser.
+
+
++ Tags
+--------------------------------------------------------------
+password manager, security, privacy
+
+
++ Contributions URL
+--------------------------------------------------------------
+https://paypal.me/4arielg
+
+
++ Homepage
+--------------------------------------------------------------
+https://github.com/arielgee/Password-Factory
+
+
++ Manage Version - Version Notes
+--------------------------------------------------------------
+**Changes**
+
+* Initial release.
