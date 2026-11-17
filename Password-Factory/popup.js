@@ -13,10 +13,13 @@
 								"For this reason, some systems reject them, escape them, or handle them inconsistently, which may cause login failures even when the password is correct.\n\n" +
 								"Uncheck this option if your passwords are being rejected or you're having issues logging in.";
 
-	let elmMain;
-	let elmPasswordOutput;
-	let elmTxtPasswordLength;
-	let elmChkIncludeReservedChars;
+	let m_elmMain;
+	let m_elmPasswordOutput;
+	let m_elmTxtPasswordLength;
+	let m_elmChkIncludeReservedChars;
+	let m_elmPasswordEntropyTooltip = null;
+
+	let m_entropyObserver = null;
 
 	document.addEventListener("DOMContentLoaded", onDOMContentLoaded);
 
@@ -24,41 +27,56 @@
 	async function onDOMContentLoaded() {
 
 		// initialize member variables
-		elmMain = document.getElementById("popupMain");
-		elmPasswordOutput = document.getElementById("passwordOutput");
-		elmTxtPasswordLength = document.getElementById("passwordLength");
-		elmChkIncludeReservedChars = document.getElementById("includeReservedChars");
+		m_elmMain = document.getElementById("popupMain");
+		m_elmPasswordOutput = document.getElementById("passwordOutput");
+		m_elmTxtPasswordLength = document.getElementById("passwordLength");
+		m_elmChkIncludeReservedChars = document.getElementById("includeReservedChars");
 
 		// initialize event listeners
+
+		m_elmPasswordOutput.addEventListener("mouseenter", onMouseEnterPasswordOutput);
+		m_elmPasswordOutput.addEventListener("mouseleave", onMouseLeavePasswordOutput);
+
 		document.getElementById("revealBtn").addEventListener("click", onClickBtnReveal);
 		document.getElementById("regenerateBtn").addEventListener("click", onClickBtnRegenerate);
 		document.getElementById("copyBtn").addEventListener("click", onClickBtnCopy);
 		document.getElementById("toggleOptionsBtn").addEventListener("click", onClickBtnToggleOptions);
-		elmTxtPasswordLength.addEventListener("change", onChangePasswordLength);
-		elmChkIncludeReservedChars.addEventListener("change", onChangeIncludeReservedChars);
+		m_elmTxtPasswordLength.addEventListener("change", onChangePasswordLength);
+		m_elmChkIncludeReservedChars.addEventListener("change", onChangeIncludeReservedChars);
 
 		// initialize interface
 		document.getElementById("popupTitle").textContent = POPUP_TITLE_CONTENT;
 		document.getElementById("popupSubtitle").textContent = POPUP_SUBTITLE_CONTENT;
-		elmTxtPasswordLength.min = preferences.MIN_PASSWORD_LENGTH;
-		elmTxtPasswordLength.max = preferences.MAX_PASSWORD_LENGTH;
-		elmChkIncludeReservedChars.parentElement.title = RESERVED_CHARS_DESC;
+		m_elmTxtPasswordLength.min = preferences.MIN_PASSWORD_LENGTH;
+		m_elmTxtPasswordLength.max = preferences.MAX_PASSWORD_LENGTH;
+		m_elmChkIncludeReservedChars.parentElement.title = RESERVED_CHARS_DESC;
 
 		const [passwordLength, includeReserved, optionsOpen] = await Promise.all([
 			preferences.getPasswordLength(),
 			preferences.getIncludeReservedCharSet(),
 			preferences.getOptionsOpen(),
 		]);
-		elmTxtPasswordLength.value = passwordLength;
-		elmChkIncludeReservedChars.checked = includeReserved;
-		elmMain.classList.toggle("options-open", optionsOpen);
+		m_elmTxtPasswordLength.value = passwordLength;
+		m_elmChkIncludeReservedChars.checked = includeReserved;
+		m_elmMain.classList.toggle("options-open", optionsOpen);
 
 		setGeneratedPasswordOutputValue();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
+	function onMouseEnterPasswordOutput() {
+		destroyPasswordEntropyTooltipElement();
+		createPasswordEntropyTooltipElement();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+	function onMouseLeavePasswordOutput() {
+		destroyPasswordEntropyTooltipElement();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
 	function onClickBtnReveal() {
-		elmPasswordOutput.type = elmPasswordOutput.type === "password" ? "text" : "password";
+		m_elmPasswordOutput.type = m_elmPasswordOutput.type === "password" ? "text" : "password";
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -68,40 +86,71 @@
 
 	////////////////////////////////////////////////////////////////////////////////////
 	function onClickBtnCopy() {
-		navigator.clipboard.writeText(elmPasswordOutput.value);
+		navigator.clipboard.writeText(m_elmPasswordOutput.value);
 		flashPasswordField();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
 	function onClickBtnToggleOptions() {
-		preferences.setOptionsOpen(elmMain.classList.toggle("options-open"));
+		preferences.setOptionsOpen(m_elmMain.classList.toggle("options-open"));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
 	async function onChangePasswordLength() {
-		const value = Math.min(Math.max(preferences.MIN_PASSWORD_LENGTH, Number(elmTxtPasswordLength.value)), preferences.MAX_PASSWORD_LENGTH);
-		elmTxtPasswordLength.value = value;
+		const value = Math.min(Math.max(preferences.MIN_PASSWORD_LENGTH, Number(m_elmTxtPasswordLength.value)), preferences.MAX_PASSWORD_LENGTH);
+		m_elmTxtPasswordLength.value = value;
 		await preferences.setPasswordLength(value);
 		setGeneratedPasswordOutputValue();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
 	async function onChangeIncludeReservedChars() {
-		await preferences.setIncludeReservedCharSet(elmChkIncludeReservedChars.checked);
+		await preferences.setIncludeReservedCharSet(m_elmChkIncludeReservedChars.checked);
 		setGeneratedPasswordOutputValue();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
 	async function setGeneratedPasswordOutputValue() {
 		const { password, entropy } = await passwordFactory.generate();
-		elmPasswordOutput.value = password;
-		elmPasswordOutput.title = `Password entropy: ${entropy}`;
+		m_elmPasswordOutput.value = password;
+		m_elmPasswordOutput.setAttribute("data-entropy", entropy);
 		pulsePasswordField();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
+	async function createPasswordEntropyTooltipElement() {
+
+		m_elmPasswordEntropyTooltip = document.createElement("div");
+		m_elmPasswordEntropyTooltip.className = "password-entropy-tooltip";
+		m_elmPasswordEntropyTooltip.textContent = `Password entropy: ${m_elmPasswordOutput.getAttribute("data-entropy") ?? "N/A"}`
+
+		// arrow element
+		const elmArrow = document.createElement("div");
+		elmArrow.className = "password-entropy-tooltip-arrow";
+		m_elmPasswordEntropyTooltip.appendChild(elmArrow);
+
+		document.body.appendChild(m_elmPasswordEntropyTooltip);
+
+		// Position the tooltip above the password and slightly to the right
+		const rect = m_elmPasswordOutput.getBoundingClientRect();
+		const top = rect.top - m_elmPasswordEntropyTooltip.offsetHeight - 12; // 12px gap
+		const left = rect.left + rect.width * 0.60;
+
+		m_elmPasswordEntropyTooltip.style.top = `${top}px`;
+		m_elmPasswordEntropyTooltip.style.left = `${left}px`;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+	function destroyPasswordEntropyTooltipElement() {
+		if(m_elmPasswordEntropyTooltip) {
+			m_elmPasswordEntropyTooltip.remove();
+			m_elmPasswordEntropyTooltip = null;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
 	function pulsePasswordField() {
-		const originalBorderColor = elmPasswordOutput.style.borderColor;
+		const originalBorderColor = m_elmPasswordOutput.style.borderColor;
 		const pulseDuration = 600; // total duration in ms
 		const pulseSteps = 30; // number of animation frames
 		const stepDuration = pulseDuration / pulseSteps;
@@ -120,8 +169,8 @@
 					const glowOpacity = 0.8 * expandProgress;
 					const borderOpacity = 0.4 + (0.6 * expandProgress);
 
-					elmPasswordOutput.style.borderColor = `rgba(255, 179, 71, ${borderOpacity})`;
-					elmPasswordOutput.style.boxShadow = `0 0 ${glowSize}px rgba(255, 179, 71, ${glowOpacity}), inset 0 0 ${glowSize * 0.5}px rgba(255, 179, 71, ${glowOpacity * 0.3})`;
+					m_elmPasswordOutput.style.borderColor = `rgba(255, 179, 71, ${borderOpacity})`;
+					m_elmPasswordOutput.style.boxShadow = `0 0 ${glowSize}px rgba(255, 179, 71, ${glowOpacity}), inset 0 0 ${glowSize * 0.5}px rgba(255, 179, 71, ${glowOpacity * 0.3})`;
 				} else {
 					// Second half: shrink glow and dim
 					const shrinkProgress = (progress - 0.5) * 2; // 0 to 1
@@ -129,15 +178,15 @@
 					const glowOpacity = 0.8 * (1 - shrinkProgress);
 					const borderOpacity = 1 - (0.6 * shrinkProgress);
 
-					elmPasswordOutput.style.borderColor = `rgba(255, 179, 71, ${borderOpacity})`;
-					elmPasswordOutput.style.boxShadow = `0 0 ${glowSize}px rgba(255, 179, 71, ${glowOpacity}), inset 0 0 ${glowSize * 0.5}px rgba(255, 179, 71, ${glowOpacity * 0.3})`;
+					m_elmPasswordOutput.style.borderColor = `rgba(255, 179, 71, ${borderOpacity})`;
+					m_elmPasswordOutput.style.boxShadow = `0 0 ${glowSize}px rgba(255, 179, 71, ${glowOpacity}), inset 0 0 ${glowSize * 0.5}px rgba(255, 179, 71, ${glowOpacity * 0.3})`;
 				}
 				++step;
 			} else {
 				// Animation complete: restore original styles
 				clearInterval(pulse);
-				elmPasswordOutput.style.borderColor = originalBorderColor;
-				elmPasswordOutput.style.boxShadow = "none";
+				m_elmPasswordOutput.style.borderColor = originalBorderColor;
+				m_elmPasswordOutput.style.boxShadow = "none";
 			}
 		}, stepDuration);
 	}
@@ -149,8 +198,8 @@
 		const frameDuration = duration / frameCount;
 
 		let frame = 0;
-		const originalBackground = elmPasswordOutput.style.background;
-		const originalBoxShadow = elmPasswordOutput.style.boxShadow;
+		const originalBackground = m_elmPasswordOutput.style.background;
+		const originalBoxShadow = m_elmPasswordOutput.style.boxShadow;
 
 		const animate = setInterval(() => {
 			if (frame < frameCount) {
@@ -171,18 +220,18 @@
 					rgba(255, 179, 71, 0) ${Math.min(200, weaveCenterPos + weaveWidth)}%
 				)`;
 
-				elmPasswordOutput.style.background = gradient;
+				m_elmPasswordOutput.style.background = gradient;
 
 				// Add a subtle glow at the weave point
 				const glowOpacity = Math.sin(progress * Math.PI) * 0.6;
-				elmPasswordOutput.style.boxShadow = `inset 0 0 15px rgba(255, 179, 71, ${glowOpacity})`;
+				m_elmPasswordOutput.style.boxShadow = `inset 0 0 15px rgba(255, 179, 71, ${glowOpacity})`;
 
 				++frame;
 			} else {
 				// Animation complete: restore original styles
 				clearInterval(animate);
-				elmPasswordOutput.style.background = originalBackground;
-				elmPasswordOutput.style.boxShadow = originalBoxShadow;
+				m_elmPasswordOutput.style.background = originalBackground;
+				m_elmPasswordOutput.style.boxShadow = originalBoxShadow;
 			}
 		}, frameDuration);
 	}

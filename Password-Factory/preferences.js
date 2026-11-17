@@ -11,16 +11,16 @@ const preferences = (() => {
 		INCLUDE_RESERVED: { name: "pref_includeReservedCharSet", default: true                },
 	};
 
-	const localStorage = browser.storage.local;
+	const m_localStorage = browser.storage.local;
 
 	//////////////////////////////////////////////////////////////////////
 	async function _setPreferenceValue(name, value) {
-		await localStorage.set({ [name]: value });
+		await m_localStorage.set({ [name]: value });
 	}
 
 	//////////////////////////////////////////////////////////////////////
 	async function _getPreferenceValue(name, defaultValue) {
-		const result = await localStorage.get(name);
+		const result = await m_localStorage.get(name);
 		return result[name] ?? defaultValue;
 	}
 

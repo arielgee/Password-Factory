@@ -210,3 +210,29 @@ body {
 	width: 16px;
 	height: 16px;
 }
+
+.password-entropy-tooltip {
+	position: fixed;
+	background: var(--panel);
+	color: var(--accent);
+	border: 2px solid var(--accent);
+	border-radius: 8px;
+	padding: 8px 12px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+	z-index: 10000;
+	pointer-events: none;
+}
+
+.password-entropy-tooltip-arrow {
+	position: absolute;
+	bottom: -10px;
+	left: 20%;
+	transform: translateX(-50%);
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-top: 10px solid var(--accent);
+}
