@@ -23,8 +23,7 @@ body {
 }
 
 body {
-	min-width: 280px;
-	border-radius: 12px;
+	min-width: 400px;
 	overflow: hidden;
 	background: radial-gradient(circle at top right, #1a3a5a, var(--bg) 58%);
 	color: var(--text);
@@ -143,6 +142,7 @@ body {
 	width: 30px;
 	height: 20px;
 	color: var(--muted);
+	padding-top: 3px;
 	cursor: pointer;
 }
 .toggle-options-btn::after {
@@ -152,8 +152,8 @@ body {
 	height: 8px;
 	border-top: 2px solid currentColor;
 	border-right: 2px solid currentColor;
-	transform: rotate(135deg);		/* Closed: chevron points down */
-	transition: transform 150ms ease;
+	transform: translateY(-26.5%) rotate(135deg);	/* Closed: chevron points down */
+	transition: transform 50ms ease;
 }
 .toggle-options-btn:hover {
 	color: var(--accent);
@@ -162,7 +162,7 @@ body {
 	transform: translateY(1px);
 }
 .popup.options-open .toggle-options-btn::after {
-	transform: rotate(-45deg);		/* Open: chevron points up */
+	transform: translateY(26.5%) rotate(-45deg);	/* Open: chevron points up */
 }
 
 .options-panel {
