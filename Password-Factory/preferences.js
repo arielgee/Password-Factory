@@ -6,9 +6,9 @@ const preferences = (() => {
 	const MAX_PASSWORD_LENGTH = 128;
 
 	const PREF_CONFIG = {
-		OPTIONS_OPEN:		{ name: "pref_optionsOpen",				default: false					},
-		PASSWORD_LENGTH:	{ name: "pref_passwordLength",			default: MIN_PASSWORD_LENGTH	},
-		INCLUDE_RESERVED:	{ name: "pref_includeReservedCharSet",	default: true					}
+		OPTIONS_OPEN:     { name: "pref_optionsOpen",            default: false               },
+		PASSWORD_LENGTH:  { name: "pref_passwordLength",         default: MIN_PASSWORD_LENGTH },
+		INCLUDE_RESERVED: { name: "pref_includeReservedCharSet", default: true                },
 	};
 
 	const localStorage = browser.storage.local;
