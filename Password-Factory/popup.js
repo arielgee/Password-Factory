@@ -18,8 +18,7 @@
 	let m_elmTxtPasswordLength;
 	let m_elmChkIncludeReservedChars;
 	let m_elmPasswordEntropyTooltip = null;
-
-	let m_entropyObserver = null;
+	let m_entropyObserver;
 
 	document.addEventListener("DOMContentLoaded", onDOMContentLoaded);
 
@@ -33,16 +32,18 @@
 		m_elmChkIncludeReservedChars = document.getElementById("includeReservedChars");
 
 		// initialize event listeners
-
 		m_elmPasswordOutput.addEventListener("mouseenter", onMouseEnterPasswordOutput);
 		m_elmPasswordOutput.addEventListener("mouseleave", onMouseLeavePasswordOutput);
-
 		document.getElementById("revealBtn").addEventListener("click", onClickBtnReveal);
 		document.getElementById("regenerateBtn").addEventListener("click", onClickBtnRegenerate);
 		document.getElementById("copyBtn").addEventListener("click", onClickBtnCopy);
 		document.getElementById("toggleOptionsBtn").addEventListener("click", onClickBtnToggleOptions);
 		m_elmTxtPasswordLength.addEventListener("change", onChangePasswordLength);
 		m_elmChkIncludeReservedChars.addEventListener("change", onChangeIncludeReservedChars);
+
+		// initialize observer for data-entropy attribute changes
+		m_entropyObserver = new MutationObserver(setPasswordEntropyTooltipTextContent);
+		m_entropyObserver.observe(m_elmPasswordOutput, { attributeFilter: ["data-entropy"], subtree: false });
 
 		// initialize interface
 		document.getElementById("popupTitle").textContent = POPUP_TITLE_CONTENT;
@@ -118,13 +119,24 @@
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
-	async function createPasswordEntropyTooltipElement() {
+	function setPasswordEntropyTooltipTextContent() {
+		if(m_elmPasswordEntropyTooltip) {
+			m_elmPasswordEntropyTooltip.firstChild.textContent = `Password entropy: ${m_elmPasswordOutput.getAttribute("data-entropy") ?? "N/A"}`;
+		}
+	}
 
+	////////////////////////////////////////////////////////////////////////////////////
+	function createPasswordEntropyTooltipElement() {
+
+		// tooltip element
 		m_elmPasswordEntropyTooltip = document.createElement("div");
 		m_elmPasswordEntropyTooltip.className = "password-entropy-tooltip";
-		m_elmPasswordEntropyTooltip.textContent = `Password entropy: ${m_elmPasswordOutput.getAttribute("data-entropy") ?? "N/A"}`
 
-		// arrow element
+		// tooltip text element
+		m_elmPasswordEntropyTooltip.appendChild(document.createElement("span"));	// first child
+		setPasswordEntropyTooltipTextContent();										// text is set to first child
+
+		// tooltip arrow element
 		const elmArrow = document.createElement("div");
 		elmArrow.className = "password-entropy-tooltip-arrow";
 		m_elmPasswordEntropyTooltip.appendChild(elmArrow);
