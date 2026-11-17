@@ -80,7 +80,7 @@ body {
 	outline: none;
 }
 .password-field[type="password"] {
-	padding-bottom: 4px;
+	padding-bottom: 3px;
 }
 .password-field:focus,
 .password-field:hover {

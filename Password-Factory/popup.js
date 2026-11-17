@@ -2,17 +2,6 @@
 
 (() => {
 
-	const {
-		name,
-		version,
-		description: POPUP_SUBTITLE_CONTENT,
-		POPUP_TITLE_CONTENT = `${name} ${version}`,
-	} = browser.runtime.getManifest();
-	const RESERVED_CHARS_DESC = `The reserved characters are: ${passwordFactory.RESERVED_CHAR_SET.split("").join(" ")}\n\n` +
-								"Reserved characters can be interpreted by websites as command or formatting symbols (for example in URLs, forms, or backend filters).\n\n" +
-								"For this reason, some systems reject them, escape them, or handle them inconsistently, which may cause login failures even when the password is correct.\n\n" +
-								"Uncheck this option if your passwords are being rejected or you're having issues logging in.";
-
 	let m_elmMain;
 	let m_elmPasswordOutput;
 	let m_elmTxtPasswordLength;
@@ -46,11 +35,16 @@
 		m_entropyObserver.observe(m_elmPasswordOutput, { attributeFilter: ["data-entropy"], subtree: false });
 
 		// initialize interface
-		document.getElementById("popupTitle").textContent = POPUP_TITLE_CONTENT;
-		document.getElementById("popupSubtitle").textContent = POPUP_SUBTITLE_CONTENT;
+		const manifest = browser.runtime.getManifest();
+		document.getElementById("popupTitle").textContent = `${manifest.name} ${manifest.version}`;
+		document.getElementById("popupSubtitle").textContent = manifest.description;
 		m_elmTxtPasswordLength.min = preferences.MIN_PASSWORD_LENGTH;
 		m_elmTxtPasswordLength.max = preferences.MAX_PASSWORD_LENGTH;
-		m_elmChkIncludeReservedChars.parentElement.title = RESERVED_CHARS_DESC;
+		m_elmChkIncludeReservedChars.parentElement.title =
+			`The reserved characters are: ${passwordFactory.RESERVED_CHAR_SET.split("").join(" ")}\n\n` +
+			"Reserved characters can be interpreted by websites as command or formatting symbols (for example in URLs, forms, or backend filters).\n\n" +
+			"For this reason, some systems reject them, escape them, or handle them inconsistently, which may cause login failures even when the password is correct.\n\n" +
+			"Uncheck this option if passwords are being rejected or you're having issues logging in.";
 
 		const [passwordLength, includeReserved, optionsOpen] = await Promise.all([
 			preferences.getPasswordLength(),
