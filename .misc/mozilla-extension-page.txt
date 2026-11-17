@@ -20,16 +20,18 @@ All passwords are generated locally in your browser. Nothing is stored or transm
 ◼ **FEATURES**
 &emsp;● Generates strong random passwords from the toolbar popup.
 &emsp;● Uses the browser's cryptographic random number generator (crypto).
-&emsp;● Every password contains uppercase letters, lowercase letters, digits and symbols.
+&emsp;● Every password contains uppercase letters, lowercase letters, digits and
+&emsp;&emsp;symbols.
 &emsp;● Adjustable password length from 16 to 128 characters (default 16).
 &emsp;● Optional reserved characters: ' ` [ ] { } / ; ? | " < >
-&emsp;● Passwords are generated locally and are never stored, logged or transmitted.
+&emsp;● Passwords are generated locally and are never stored, logged or
+&emsp;&emsp;transmitted.
 &emsp;● No tracking and no data collection.
 &emsp;● Built on Manifest V3.
 
 ◼ **PERMISSION JUSTIFICATION**
-&emsp;● "storage" – Saving your preferences (password length, reserved characters option
-&emsp;&emsp;and options panel state) locally in the browser.
+&emsp;● "storage" – Saving your preferences (password length and reserved
+&emsp;&emsp;characters option)locally in the browser.
 
 
 + Tags

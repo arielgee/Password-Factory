@@ -11,7 +11,7 @@
 	},
 	"name": "Password Factory",
 	"version": "1.0",
-	"description": "Generate strong passwords easily.",
+	"description": "Generate strong & secure passwords instantly",
 	"author": "arielg",
 	"permissions": [
 		"storage"

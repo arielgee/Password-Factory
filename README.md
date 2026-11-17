@@ -1,2 +1,2 @@
 # Password Factory
-[WebExtension] Generate strong passwords easily.
+[WebExtension] Generate strong & secure passwords instantly

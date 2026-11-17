@@ -2,6 +2,12 @@
 
 (() => {
 
+	const {
+		name,
+		version,
+		description: POPUP_SUBTITLE_CONTENT,
+		POPUP_TITLE_CONTENT = `${name} ${version}`,
+	} = browser.runtime.getManifest();
 	const RESERVED_CHARS_DESC = `The reserved characters are: ${passwordFactory.RESERVED_CHAR_SET.split("").join(" ")}\n\n` +
 								"Reserved characters can be interpreted by websites as command or formatting symbols (for example in URLs, forms, or backend filters).\n\n" +
 								"For this reason, some systems reject them, escape them, or handle them inconsistently, which may cause login failures even when the password is correct.\n\n" +
@@ -17,7 +23,7 @@
 	////////////////////////////////////////////////////////////////////////////////////
 	async function onDOMContentLoaded() {
 
-		// initialize elements
+		// initialize member variables
 		elmMain = document.getElementById("popupMain");
 		elmPasswordOutput = document.getElementById("passwordOutput");
 		elmTxtPasswordLength = document.getElementById("passwordLength");
@@ -32,18 +38,22 @@
 		elmChkIncludeReservedChars.addEventListener("change", onChangeIncludeReservedChars);
 
 		// initialize interface
-		const [optionsOpen, passwordLength, includeReserved] = await Promise.all([
-			preferences.getOptionsOpen(),
-			preferences.getPasswordLength(),
-			preferences.getIncludeReservedCharSet(),
-		]);
-		setGeneratedPasswordOutputValue();
-		elmMain.classList.toggle("options-open", optionsOpen);
+		document.getElementById("popupTitle").textContent = POPUP_TITLE_CONTENT;
+		document.getElementById("popupSubtitle").textContent = POPUP_SUBTITLE_CONTENT;
 		elmTxtPasswordLength.min = preferences.MIN_PASSWORD_LENGTH;
 		elmTxtPasswordLength.max = preferences.MAX_PASSWORD_LENGTH;
+		elmChkIncludeReservedChars.parentElement.title = RESERVED_CHARS_DESC;
+
+		const [passwordLength, includeReserved, optionsOpen] = await Promise.all([
+			preferences.getPasswordLength(),
+			preferences.getIncludeReservedCharSet(),
+			preferences.getOptionsOpen(),
+		]);
 		elmTxtPasswordLength.value = passwordLength;
 		elmChkIncludeReservedChars.checked = includeReserved;
-		elmChkIncludeReservedChars.parentElement.title = RESERVED_CHARS_DESC;
+		elmMain.classList.toggle("options-open", optionsOpen);
+
+		setGeneratedPasswordOutputValue();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +93,6 @@
 
 	////////////////////////////////////////////////////////////////////////////////////
 	async function setGeneratedPasswordOutputValue() {
-		//({ password: elmPasswordOutput.value, entropy: elmPasswordOutput.title } = await passwordFactory.generate());
 		const { password, entropy } = await passwordFactory.generate();
 		elmPasswordOutput.value = password;
 		elmPasswordOutput.title = `Password entropy: ${entropy}`;
