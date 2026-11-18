@@ -53,4 +53,6 @@ https://github.com/arielgee/Password-Factory
 --------------------------------------------------------------
 **Changes**
 
-* Initial release.
+* Added a tooltip displaying password entropy.
+* Updated the extension description and improved how the extension title and description are displayed.
+* Made minor code improvements.
