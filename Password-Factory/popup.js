@@ -106,7 +106,11 @@
 
 	////////////////////////////////////////////////////////////////////////////////////
 	async function setGeneratedPasswordOutputValue() {
-		const { password, entropy } = await passwordFactory.generate();
+		const [length, includeReserved] = await Promise.all([
+			preferences.getPasswordLength(),
+			preferences.getIncludeReservedCharSet(),
+		]);
+		const { password, entropy } = passwordFactory.generate(length, includeReserved);
 		m_elmPasswordOutput.value = password;
 		m_elmPasswordOutput.setAttribute("data-entropy", entropy);
 		pulsePasswordField();

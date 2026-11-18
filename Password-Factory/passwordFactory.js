@@ -5,12 +5,10 @@ const passwordFactory = (() => {
 	const BASE_CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(),.~:-_=+";
 	const RESERVED_CHAR_SET = "'`[]{}/;?|\"<>";
 
-	const MIN_LENGTH = preferences.MIN_PASSWORD_LENGTH;		// policy decision for the extension is set in preferences.js
-	const MAX_LENGTH = 4096;								// keeps every request far below the 65536-byte getRandomValues() quota
+	const MIN_LENGTH = 8;		// minimum password length
+	const MAX_LENGTH = 4096;	// keeps every request far below the 65536-byte getRandomValues() quota
 
-	// Enforce composition rules. resample until all four classes are present.
-	// Resampling the whole password keeps the result uniform over the set of acceptable passwords.
-	const REQUIRED_CLASSES = [/[A-Z]/, /[a-z]/, /[0-9]/, /[^A-Za-z0-9]/];
+	const REQUIRED_CLASSES = [/[A-Z]/, /[a-z]/, /[0-9]/, /[^A-Za-z0-9]/];	// upper, lower, digit, special; enforce composition rules. resample as needed
 	const MAX_ATTEMPTS = 500;	// safety cap for the class-coverage resampling loop
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +44,7 @@ const passwordFactory = (() => {
 
 	////////////////////////////////////////////////////////////////////////////////////
 	function _generatePassword(charSet, length) {
+		// Enforce composition rules. resample until all four classes are present.
 		for(let i=0; i<MAX_ATTEMPTS; ++i) {
 			const pwd = _generateOnce(charSet, length);
 			if(REQUIRED_CLASSES.every(re => re.test(pwd))) return pwd;
@@ -55,15 +54,11 @@ const passwordFactory = (() => {
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
-	async function generate() {
-		const [rawLength, includeReserved] = await Promise.all([
-			preferences.getPasswordLength(),
-			preferences.getIncludeReservedCharSet(),
-		]);
-
-		const length = _validateLength(rawLength);
+	function generate(length, includeReserved) {
+		const safeLength = _validateLength(length);
 		const charSet = includeReserved ? (BASE_CHAR_SET + RESERVED_CHAR_SET) : BASE_CHAR_SET;
-		const password = _generatePassword(charSet, length);
+
+		const password = _generatePassword(charSet, safeLength);
 		return {
 			password: password,
 			entropy: (Math.log2(charSet.length) * password.length).toFixed(2) + " bits",
