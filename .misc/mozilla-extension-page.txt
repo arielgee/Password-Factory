@@ -31,7 +31,7 @@ All passwords are generated locally in your browser. Nothing is stored or transm
 
 ◼ **PERMISSION JUSTIFICATION**
 &emsp;● "storage" – Saving your preferences (password length and reserved
-&emsp;&emsp;characters option)locally in the browser.
+&emsp;&emsp;characters option) locally in the browser.
 
 
 + Tags
